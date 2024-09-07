@@ -7,6 +7,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import Dashboard from "../Components/Dashboard";
 import Users from "../Components/Users";
 import Settings from "../Components/Settings";
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const drawerWidth = 240;
 
