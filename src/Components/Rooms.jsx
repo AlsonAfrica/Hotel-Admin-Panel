@@ -1,166 +1,95 @@
-import React, { useState } from 'react';
-import { Card, CardContent, Typography, CardMedia, CardActions, Button, Dialog, DialogTitle, DialogContent, TextField } from '@mui/material';
-import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../Config/firebaseconfig'; // Adjust the path as needed
+import React, { useEffect, useState } from "react";
+import { Box, Card, CardContent, Typography, Button, CardMedia } from "@mui/material";
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { db } from "../Config/firebaseconfig";
+import AddRoomForm from "./AddRoomForm";
 
-const Rooms = ({ id, image, amenities, roomType, capacity, price, availability }) => {
-  const [openDialog, setOpenDialog] = useState(false);
-  const [editedRoom, setEditedRoom] = useState({
-    image,
-    amenities: amenities.join(', '),
-    roomType,
-    capacity,
-    price,
-    availability
-  });
+const Rooms = () => {
+  const [rooms, setRooms] = useState([]);
+  const [selectedRoom, setSelectedRoom] = useState(null); // For editing
 
-  const handleOpenDialog = () => setOpenDialog(true);
-  const handleCloseDialog = () => setOpenDialog(false);
+  // Fetch rooms from Firestore
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "rooms"));
+        const roomsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setRooms(roomsData);
+      } catch (err) {
+        console.error("Error fetching rooms:", err);
+      }
+    };
 
-  const handleEditChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setEditedRoom(prevState => ({
-      ...prevState,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
+    fetchRooms();
+  }, []);
 
-  const handleSaveChanges = async () => {
-    const roomRef = doc(db, 'rooms', id);
+  // Delete a room from Firestore
+  const handleDelete = async (roomId) => {
     try {
-      await updateDoc(roomRef, {
-        ...editedRoom,
-        amenities: editedRoom.amenities.split(',').map(amenity => amenity.trim())
-      });
-      alert('Room updated successfully');
-      handleCloseDialog();
-    } catch (error) {
-      console.error('Error updating room:', error);
-      alert('Failed to update room');
-    }
-  };
-
-  const handleDelete = async () => {
-    const roomRef = doc(db, 'rooms', id);
-    try {
-      await deleteDoc(roomRef);
+      await deleteDoc(doc(db, "rooms", roomId));
+      setRooms(rooms.filter(room => room.id !== roomId)); // Remove from UI
       alert('Room deleted successfully');
-      // Handle deletion in the parent component
-    } catch (error) {
-      console.error('Error deleting room:', error);
-      alert('Failed to delete room');
+    } catch (err) {
+      console.error("Error deleting room:", err);
+      alert('Error deleting room. Please try again.');
     }
   };
 
   return (
-    <>
-      <Card sx={{ maxWidth: 345, mb: 2 }}>
-        <CardMedia
-          component="img"
-          height="140"
-          image={image}
-          alt="Room Image"
-        />
-        <CardContent>
-          <Typography gutterBottom variant="h5" component="div">
-            {roomType}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Amenities: {amenities.join(', ')}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Capacity: {capacity} persons
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Price: ${price} per night
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Availability: {availability ? 'Available' : 'Not Available'}
-          </Typography>
-        </CardContent>
-        <CardActions>
-          <Button size="small" onClick={handleOpenDialog}>Edit</Button>
-          <Button size="small" color="error" onClick={handleDelete}>Delete</Button>
-        </CardActions>
-      </Card>
+    <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: '16px',
+        padding: '16px'
+      }}
+    >
+      {rooms.map(room => (
+        <Card key={room.id} sx={{ width: '300px', margin: '16px', boxShadow: '0 3px 5px rgba(0,0,0,0.2)' }}>
+          {room.image && (
+            <CardMedia
+              component="img"
+              height="140"
+              image={room.image}
+              alt={`${room.roomType} image`}
+            />
+          )}
+          <CardContent>
+            <Typography variant="h6" gutterBottom>{room.roomType}</Typography>
+            <Typography variant="body2" color="textSecondary">Amenities: {room.amenities.join(", ")}</Typography>
+            <Typography variant="body2" color="textSecondary">Capacity: {room.capacity}</Typography>
+            <Typography variant="body2" color="textSecondary">Price: ${room.price}</Typography>
+            <Typography variant="body2" color="textSecondary">Availability: {room.availability ? 'Available' : 'Not Available'}</Typography>
+            
+            <Button 
+              variant="contained" 
+              color="primary" 
+              onClick={() => setSelectedRoom(room)} 
+              sx={{ marginTop: '10px', marginRight: '10px' }}
+            >
+              Edit
+            </Button>
+            
+            <Button 
+              variant="contained" 
+              color="secondary" 
+              onClick={() => handleDelete(room.id)} 
+              sx={{ marginTop: '10px' }}
+            >
+              Delete
+            </Button>
+          </CardContent>
+        </Card>
+      ))}
 
-      {/* Dialog for Editing Room */}
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        fullWidth
-        maxWidth="md"
-      >
-        <DialogTitle>Edit Room</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Image URL"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            name="image"
-            value={editedRoom.image}
-            onChange={handleEditChange}
-          />
-          <TextField
-            label="Amenities (comma separated)"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            name="amenities"
-            value={editedRoom.amenities}
-            onChange={handleEditChange}
-          />
-          <TextField
-            label="Room Type"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            name="roomType"
-            value={editedRoom.roomType}
-            onChange={handleEditChange}
-          />
-          <TextField
-            label="Capacity"
-            variant="outlined"
-            type="number"
-            fullWidth
-            margin="normal"
-            name="capacity"
-            value={editedRoom.capacity}
-            onChange={handleEditChange}
-          />
-          <TextField
-            label="Price"
-            variant="outlined"
-            type="number"
-            fullWidth
-            margin="normal"
-            name="price"
-            value={editedRoom.price}
-            onChange={handleEditChange}
-          />
-          <TextField
-            label="Availability"
-            variant="outlined"
-            type="checkbox"
-            name="availability"
-            checked={editedRoom.availability}
-            onChange={handleEditChange}
-            margin="normal"
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSaveChanges}
-            sx={{ mt: 2 }}
-          >
-            Save Changes
-          </Button>
-        </DialogContent>
-      </Dialog>
-    </>
+      {/* Add/Edit Room Form */}
+      {/* {selectedRoom && (
+        <AddRoomForm roomData={selectedRoom} setSelectedRoom={setSelectedRoom} />
+      )} */}
+    </Box>
   );
 };
 
 export default Rooms;
+

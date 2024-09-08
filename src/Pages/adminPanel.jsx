@@ -9,7 +9,9 @@ import Dashboard from "../Components/Dashboard";
 import Users from "../Components/Users";
 import Settings from "../Components/Settings";
 import Rooms from "../Components/Rooms";
-import AddRoomForm from "../Components/addRoomForm";
+import AddRoomForm from "../Components/AddRoomForm";
+import { db } from "../Config/firebaseconfig"; // Import firebase config
+import { collection, doc, updateDoc, deleteDoc } from "firebase/firestore";
 
 const drawerWidth = 240;
 
@@ -18,6 +20,7 @@ const AdminPanel = () => {
   const [anchorEl, setAnchorEl] = useState(null); // State for dropdown menu
   const [openDialog, setOpenDialog] = useState(false); // State for dialog
   const [roomList, setRoomList] = useState([]); // State to store rooms
+  const [editRoomData, setEditRoomData] = useState(null); // State to store room data to be edited
 
   // Function to handle opening the dropdown
   const handleClick = (event) => {
@@ -37,6 +40,7 @@ const AdminPanel = () => {
   // Function to handle closing the dialog
   const handleCloseDialog = () => {
     setOpenDialog(false);
+    setEditRoomData(null); // Clear edit data
   };
 
   // Function to handle adding a room
@@ -44,6 +48,28 @@ const AdminPanel = () => {
     setRoomList((prevList) => [...prevList, newRoom]);
     handleCloseDialog();
     handleClose();
+  };
+
+  // Function to handle editing a room
+  const handleEditRoom = async (roomId, updatedRoom) => {
+    const roomRef = doc(db, "rooms", roomId); // Get reference to the room document
+    await updateDoc(roomRef, updatedRoom); // Update room in the Firebase database
+    setRoomList((prevList) =>
+      prevList.map((room) => (room.id === roomId ? { ...room, ...updatedRoom } : room))
+    );
+  };
+
+  // Function to handle deleting a room
+  const handleDeleteRoom = async (roomId) => {
+    const roomRef = doc(db, "rooms", roomId); // Get reference to the room document
+    await deleteDoc(roomRef); // Delete room from the Firebase database
+    setRoomList((prevList) => prevList.filter((room) => room.id !== roomId));
+  };
+
+  // Function to open the form for editing a room
+  const openEditForm = (room) => {
+    setEditRoomData(room); // Set the data of the room to be edited
+    setOpenDialog(true); // Open dialog for editing
   };
 
   // Function to render the active component based on the state
@@ -59,7 +85,12 @@ const AdminPanel = () => {
         return (
           <Box>
             {roomList.map((room, index) => (
-              <Rooms key={index} {...room} />
+              <Rooms
+                key={index}
+                {...room}
+                onEdit={() => openEditForm(room)}
+                onDelete={() => handleDeleteRoom(room.id)}
+              />
             ))}
           </Box>
         );
@@ -71,7 +102,6 @@ const AdminPanel = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      {/* Sidebar Drawer */}
       <Drawer
         sx={{
           width: drawerWidth,
@@ -123,7 +153,6 @@ const AdminPanel = () => {
         </List>
       </Drawer>
 
-      {/* Dropdown Menu */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -133,20 +162,23 @@ const AdminPanel = () => {
         <MenuItem onClick={handleOpenDialog}>Add Room</MenuItem>
       </Menu>
 
-      {/* Dialog for Add Room Form */}
+      {/* Dialog for Add/Edit Room Form */}
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
         fullWidth
         maxWidth="md"
       >
-        <DialogTitle>Add New Room</DialogTitle>
+        <DialogTitle>{editRoomData ? "Edit Room" : "Add New Room"}</DialogTitle>
         <DialogContent>
-          <AddRoomForm onAddRoom={handleAddRoom} />
+          <AddRoomForm
+            onAddRoom={handleAddRoom}
+            editRoomData={editRoomData}
+            onEditRoom={handleEditRoom}
+          />
         </DialogContent>
       </Dialog>
 
-      {/* Main Content Area */}
       <Box
         component="main"
         sx={{
