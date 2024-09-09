@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Card, CardContent, Typography, Button, CardMedia } from "@mui/material";
+import { Box, Card, CardContent, Typography, Button, CardMedia, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { db } from "../Config/firebaseconfig";
 import AddRoomForm from "./AddRoomForm";
@@ -7,6 +7,7 @@ import AddRoomForm from "./AddRoomForm";
 const Rooms = () => {
   const [rooms, setRooms] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState(null); // For editing
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // Dialog state
 
   // Fetch rooms from Firestore
   useEffect(() => {
@@ -33,6 +34,18 @@ const Rooms = () => {
       console.error("Error deleting room:", err);
       alert('Error deleting room. Please try again.');
     }
+  };
+
+  // Open the dialog and set selected room for editing
+  const handleEdit = (room) => {
+    setSelectedRoom(room);
+    setIsDialogOpen(true); // Open dialog
+  };
+
+  // Close the dialog
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedRoom(null); // Reset selected room when closing dialog
   };
 
   return (
@@ -65,7 +78,7 @@ const Rooms = () => {
             <Button 
               variant="contained" 
               color="primary" 
-              onClick={() => setSelectedRoom(room)} 
+              onClick={() => handleEdit(room)} 
               sx={{ marginTop: '10px', marginRight: '10px' }}
             >
               Edit
@@ -83,13 +96,26 @@ const Rooms = () => {
         </Card>
       ))}
 
-      {/* Add/Edit Room Form */}
-      {/* {selectedRoom && (
-        <AddRoomForm roomData={selectedRoom} setSelectedRoom={setSelectedRoom} />
-      )} */}
+      {/* Dialog for Add/Edit Room Form */}
+      <Dialog open={isDialogOpen} onClose={handleCloseDialog} fullWidth maxWidth="sm">
+        <DialogTitle>{selectedRoom ? "Edit Room" : "Add Room"}</DialogTitle>
+        <DialogContent>
+          {selectedRoom && (
+            <AddRoomForm 
+              editRoomData={selectedRoom} 
+              onEditRoom={(roomId, updatedData) => {
+                const updatedRooms = rooms.map(room => 
+                  room.id === roomId ? { ...room, ...updatedData } : room
+                );
+                setRooms(updatedRooms); 
+                handleCloseDialog();
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };
 
 export default Rooms;
-
