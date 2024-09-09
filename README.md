@@ -40,7 +40,7 @@ the admin app is linked with the hotel app
 ### Please follow the below stated steps to run the application
 
 ### Installations
-- git clone https://github.com/your-username/admin-hotel-panel.git
+- git clone https://github.com/AlsonAfrica/Hotel-Admin-Panel.git
 - cd Hotel-Admin-Panel
 
 ### Install Dependencies
