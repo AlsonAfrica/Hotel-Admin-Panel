@@ -1,5 +1,6 @@
 # Admin Hotel Panel
 Welcome to the Admin Hotel Panel! This web application allows administrators to manage hotel operations, including room bookings, user profiles, and favorites. Built using React and Material-UI, it provides a user-friendly interface for managing hotel details.
+the admin app is linked with the hotel app
 
 ## Features
 - Room Management: View, add, edit, and delete rooms.
