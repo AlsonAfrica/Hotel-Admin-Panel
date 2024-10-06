@@ -1,19 +1,39 @@
 import React, { useState } from "react";
-import { Box, CssBaseline, Drawer, Toolbar, List, ListItem, ListItemIcon, ListItemText, Typography, Menu, MenuItem, Dialog, DialogTitle, DialogContent } from "@mui/material";
+import {
+  Box,
+  CssBaseline,
+  Drawer,
+  Toolbar,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+  Menu,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
+  Divider,
+} from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import SettingsIcon from "@mui/icons-material/Settings";
-import RoomServiceIcon from '@mui/icons-material/RoomService';
+import RoomServiceIcon from "@mui/icons-material/RoomService";
 import LogoutIcon from "@mui/icons-material/Logout";
+import MenuIcon from "@mui/icons-material/Menu";
 import Dashboard from "../Components/Dashboard";
 import Users from "../Components/Users";
 import Settings from "../Components/Settings";
 import Rooms from "../Components/Rooms";
 import AddRoomForm from "../Components/AddRoomForm";
-import { db } from "../Config/firebaseconfig"; // Import firebase config
+import { db } from "../Config/firebaseconfig";
 import { collection, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import Gallery from "../Components/Gallary";
+import Facilities from "../Components/Facilities";
 
-const drawerWidth = 240;
+const drawerWidth = 260; // Slightly wider for better layout
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -22,63 +42,45 @@ const AdminPanel = () => {
   const [roomList, setRoomList] = useState([]); // State to store rooms
   const [editRoomData, setEditRoomData] = useState(null); // State to store room data to be edited
 
-  // Function to handle opening the dropdown
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  // Function to handle closing the dropdown
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  // Function to handle opening the dialog
-  const handleOpenDialog = () => {
-    setOpenDialog(true);
-  };
-
-  // Function to handle closing the dialog
+  const handleClick = (event) => setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
+  const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setEditRoomData(null); // Clear edit data
+    setEditRoomData(null);
   };
-
-  // Function to handle adding a room
   const handleAddRoom = (newRoom) => {
     setRoomList((prevList) => [...prevList, newRoom]);
     handleCloseDialog();
     handleClose();
   };
-
-  // Function to handle editing a room
   const handleEditRoom = async (roomId, updatedRoom) => {
-    const roomRef = doc(db, "rooms", roomId); // Get reference to the room document
-    await updateDoc(roomRef, updatedRoom); // Update room in the Firebase database
+    const roomRef = doc(db, "rooms", roomId);
+    await updateDoc(roomRef, updatedRoom);
     setRoomList((prevList) =>
       prevList.map((room) => (room.id === roomId ? { ...room, ...updatedRoom } : room))
     );
   };
-
-  // Function to handle deleting a room
   const handleDeleteRoom = async (roomId) => {
-    const roomRef = doc(db, "rooms", roomId); // Get reference to the room document
-    await deleteDoc(roomRef); // Delete room from the Firebase database
+    const roomRef = doc(db, "rooms", roomId);
+    await deleteDoc(roomRef);
     setRoomList((prevList) => prevList.filter((room) => room.id !== roomId));
   };
-
-  // Function to open the form for editing a room
   const openEditForm = (room) => {
-    setEditRoomData(room); // Set the data of the room to be edited
-    setOpenDialog(true); // Open dialog for editing
+    setEditRoomData(room);
+    setOpenDialog(true);
   };
 
-  // Function to render the active component based on the state
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
         return <Dashboard />;
-      case "users":
+      case "users":  
         return <Users />;
+      case "Facilities":
+        return <Facilities/>
+      case "Gallery":
+        return <Gallery/>;
       case "settings":
         return <Settings />;
       case "Rooms":
@@ -100,75 +102,80 @@ const AdminPanel = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <CssBaseline />
       <Drawer
         sx={{
           width: drawerWidth,
           flexShrink: 0,
-          '& .MuiDrawer-paper': {
+          "& .MuiDrawer-paper": {
             width: drawerWidth,
-            boxSizing: 'border-box',
+            boxSizing: "border-box",
+            backgroundColor: "#2196F3",
+            color: "#FFF",
           },
         }}
         variant="permanent"
         anchor="left"
       >
         <Toolbar>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 'bold' }}>
             Admin Panel
           </Typography>
         </Toolbar>
+        <Divider />
         <List>
           <ListItem button onClick={() => setActiveTab("dashboard")}>
             <ListItemIcon>
-              <DashboardIcon />
+              <DashboardIcon sx={{ color: "#FFF" }} />
             </ListItemIcon>
             <ListItemText primary="Dashboard" />
           </ListItem>
+          <ListItem button onClick={() => setActiveTab("Gallery")}>
+            <ListItemIcon>
+              <DashboardIcon sx={{ color: "#FFF" }} />
+            </ListItemIcon>
+            <ListItemText primary="Gallery" />
+          </ListItem>
+          <ListItem button onClick={() => setActiveTab("Facilities")}>
+            <ListItemIcon>
+              <DashboardIcon sx={{ color: "#FFF" }} />
+            </ListItemIcon>
+            <ListItemText primary="Facilities" />
+          </ListItem>
           <ListItem button onClick={() => setActiveTab("users")}>
             <ListItemIcon>
-              <PeopleIcon />
+              <PeopleIcon sx={{ color: "#FFF" }} />
             </ListItemIcon>
             <ListItemText primary="Users" />
           </ListItem>
           <ListItem button onClick={handleClick}>
             <ListItemIcon>
-              <RoomServiceIcon />
+              <RoomServiceIcon sx={{ color: "#FFF" }} />
             </ListItemIcon>
             <ListItemText primary="Rooms" />
           </ListItem>
           <ListItem button onClick={() => setActiveTab("settings")}>
             <ListItemIcon>
-              <SettingsIcon />
+              <SettingsIcon sx={{ color: "#FFF" }} />
             </ListItemIcon>
             <ListItemText primary="Settings" />
           </ListItem>
           <ListItem button onClick={() => setActiveTab("logout")}>
             <ListItemIcon>
-              <LogoutIcon />
+              <LogoutIcon sx={{ color: "#FFF" }} />
             </ListItemIcon>
             <ListItemText primary="Logout" />
           </ListItem>
         </List>
       </Drawer>
 
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-      >
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <MenuItem onClick={() => setActiveTab("Rooms")}>View Rooms</MenuItem>
         <MenuItem onClick={handleOpenDialog}>Add Room</MenuItem>
       </Menu>
 
-      {/* Dialog for Add/Edit Room Form */}
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        fullWidth
-        maxWidth="md"
-      >
+      <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="md">
         <DialogTitle>{editRoomData ? "Edit Room" : "Add New Room"}</DialogTitle>
         <DialogContent>
           <AddRoomForm
@@ -179,16 +186,9 @@ const AdminPanel = () => {
         </DialogContent>
       </Dialog>
 
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          bgcolor: 'background.default',
-          p: 3,
-        }}
-      >
+      <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}>
         <Toolbar />
-        <Typography variant="h4" component="h1">
+        <Typography variant="h4" component="h1" sx={{ mb: 3 }}>
           {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
         </Typography>
         {renderContent()}

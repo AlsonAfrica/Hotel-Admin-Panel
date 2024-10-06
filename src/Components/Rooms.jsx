@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Box, Card, CardContent, Typography, Button, CardMedia, Dialog, DialogContent, DialogTitle } from "@mui/material";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../Config/firebaseconfig";
 import AddRoomForm from "./AddRoomForm";
 
@@ -48,18 +48,31 @@ const Rooms = () => {
     setSelectedRoom(null); // Reset selected room when closing dialog
   };
 
+  // Update room data in Firestore
+  const updateRoomInFirestore = async (roomId, updatedData) => {
+    try {
+      const roomRef = doc(db, "rooms", roomId);
+      await updateDoc(roomRef, updatedData);
+      // Update local state
+      setRooms(rooms.map(room => (room.id === roomId ? { ...room, ...updatedData } : room)));
+      handleCloseDialog();
+    } catch (err) {
+      console.error("Error updating room:", err);
+      alert('Error updating room. Please try again.');
+    }
+  };
+
   return (
     <Box
       sx={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)', // 5 columns
         gap: '16px',
-        padding: '16px'
+        padding: '16px',
       }}
     >
       {rooms.map(room => (
-        <Card key={room.id} sx={{ width: '300px', margin: '16px', boxShadow: '0 3px 5px rgba(0,0,0,0.2)' }}>
+        <Card key={room.id} sx={{ boxShadow: '0 3px 5px rgba(0,0,0,0.2)', height: '100%' }}>
           {room.image && (
             <CardMedia
               component="img"
@@ -95,23 +108,15 @@ const Rooms = () => {
           </CardContent>
         </Card>
       ))}
-
-      {/* Dialog for Add/Edit Room Form */}
-      <Dialog open={isDialogOpen} onClose={handleCloseDialog} fullWidth maxWidth="sm">
-        <DialogTitle>{selectedRoom ? "Edit Room" : "Add Room"}</DialogTitle>
+      
+      <Dialog open={isDialogOpen} onClose={handleCloseDialog}>
+        <DialogTitle>{selectedRoom ? 'Edit Room' : 'Add Room'}</DialogTitle>
         <DialogContent>
-          {selectedRoom && (
-            <AddRoomForm 
-              editRoomData={selectedRoom} 
-              onEditRoom={(roomId, updatedData) => {
-                const updatedRooms = rooms.map(room => 
-                  room.id === roomId ? { ...room, ...updatedData } : room
-                );
-                setRooms(updatedRooms); 
-                handleCloseDialog();
-              }}
-            />
-          )}
+          <AddRoomForm 
+            editRoomData={selectedRoom}
+            onAddRoom={(room) => setRooms([...rooms, room])}
+            onEditRoom={updateRoomInFirestore}
+          />
         </DialogContent>
       </Dialog>
     </Box>
