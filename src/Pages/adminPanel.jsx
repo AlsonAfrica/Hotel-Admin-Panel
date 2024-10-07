@@ -32,7 +32,7 @@ import { db } from "../Config/firebaseconfig";
 import { collection, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import Gallery from "../Components/Gallary";
 import Facilities from "../Components/Facilities";
-
+import { useNavigate } from "react-router-dom";
 const drawerWidth = 260; // Slightly wider for better layout
 
 const AdminPanel = () => {
@@ -61,6 +61,11 @@ const AdminPanel = () => {
       prevList.map((room) => (room.id === roomId ? { ...room, ...updatedRoom } : room))
     );
   };
+  const navigate = useNavigate()
+  
+  const handleLogout = ()=>{  
+    navigate('/')
+  }
   const handleDeleteRoom = async (roomId) => {
     const roomRef = doc(db, "rooms", roomId);
     await deleteDoc(roomRef);
@@ -75,6 +80,9 @@ const AdminPanel = () => {
     switch (activeTab) {
       case "dashboard":
         return <Dashboard />;
+      case "Logout":
+          handleLogout(); // Call the logout function when this case is encountered
+          return null; // Optionally return null since you're redirec
       case "users":  
         return <Users />;
       case "Facilities":
@@ -161,7 +169,7 @@ const AdminPanel = () => {
             </ListItemIcon>
             <ListItemText primary="Settings" />
           </ListItem>
-          <ListItem button onClick={() => setActiveTab("logout")}>
+          <ListItem button onClick={() => handleLogout()}>
             <ListItemIcon>
               <LogoutIcon sx={{ color: "#FFF" }} />
             </ListItemIcon>
