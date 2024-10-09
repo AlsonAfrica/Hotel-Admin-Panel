@@ -35,6 +35,7 @@ import Gallery from "../Components/Gallary";
 import Facilities from "../Components/Facilities";
 import { useNavigate } from "react-router-dom";
 import AddGalleryForm from "../Components/addGalleryForm";
+import AddFacilitiesForm from "../Components/addFacilityForm";
 
 
 const drawerWidth = 260; // Slightly wider for better layout
@@ -46,12 +47,16 @@ const AdminPanel = () => {
   const [roomList, setRoomList] = useState([]); // State to store rooms
   const [editRoomData, setEditRoomData] = useState(null); // State to store room data to be edited
   const [openImageDialog, setOpenImageDialog] = useState(false);
-  
+  const [openFacilityDialog, setOpenFacilityDialog]=useState(false);
+
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
   const handleOpenDialog = () => setOpenDialog(true);
   const handleOpenImageDialog = ()=> setOpenImageDialog(true);
   const handleCloseImageDialog = ()=> setOpenImageDialog(false);
+  const handleOpenFacilityDialog = ()=> setOpenFacilityDialog(true);
+  const handleCloseFacilityDialog = ()=> setOpenFacilityDialog(false);
+ 
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setEditRoomData(null);
@@ -85,11 +90,15 @@ const AdminPanel = () => {
   };
 
   const [anchorElGallery, setAnchorElGallery] = useState(null); // State for Gallery dropdown menu
+  const [anchorElFacility,setAnchorElFacility] = useState(null);
 
   // Handle opening and closing Gallery menu
   const handleClickGallery = (event) => setAnchorElGallery(event.currentTarget);
   const handleCloseGallery = () => setAnchorElGallery(null);
-
+  
+  const handleClickFacility = (event) => setAnchorElFacility(event.currentTarget);
+  const handleCloseFacility = () => setAnchorElFacility(null);
+  
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
@@ -162,7 +171,7 @@ const AdminPanel = () => {
             <ListItemText primary="Gallery" />
           </ListItem>
 
-          <ListItem button onClick={() => setActiveTab("Facilities")}>
+          <ListItem button onClick={handleClickFacility}>
             <ListItemIcon>
               <DashboardIcon sx={{ color: "#FFF" }} />
             </ListItemIcon>
@@ -200,6 +209,12 @@ const AdminPanel = () => {
         <MenuItem onClick={() => setActiveTab("Gallery")}>View Gallery</MenuItem>
         <MenuItem onClick={handleOpenImageDialog}>Add Image</MenuItem>
       </Menu>
+      
+      {/* Dropdown for Facilities */}
+      <Menu anchorEl={anchorElFacility} open={Boolean(anchorElFacility)} onClose={handleCloseFacility}>
+        <MenuItem onClick={() => setActiveTab("Facilities")}>View Facilities</MenuItem>
+        <MenuItem onClick={handleOpenFacilityDialog}>Add Facilities</MenuItem>
+      </Menu>
 
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <MenuItem onClick={() => setActiveTab("Rooms")}>View Rooms</MenuItem>
@@ -222,6 +237,13 @@ const AdminPanel = () => {
       <Dialog open={openImageDialog} onClose={handleCloseImageDialog} fullWidth maxWidth="md">
           <DialogContent>
             <AddGalleryForm  onAddImage={(data) => console.log("Image added:", data)}/> {/* Form component for adding image */}
+          </DialogContent>
+      </Dialog>
+      
+      {/* Gallary Dialog */}
+      <Dialog open={openFacilityDialog} onClose={handleCloseFacilityDialog} fullWidth maxWidth="md">
+          <DialogContent>
+            <AddFacilitiesForm onAddImage={(data) => console.log("Image added:", data)}/>
           </DialogContent>
       </Dialog>
 
