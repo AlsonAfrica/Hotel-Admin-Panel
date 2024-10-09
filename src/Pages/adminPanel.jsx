@@ -23,6 +23,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import RoomServiceIcon from "@mui/icons-material/RoomService";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
+import ImageIcon from "@mui/icons-material/Image";  // Gallery Icon
 import Dashboard from "../Components/Dashboard";
 import Users from "../Components/Users";
 import Settings from "../Components/Settings";
@@ -33,6 +34,9 @@ import { collection, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import Gallery from "../Components/Gallary";
 import Facilities from "../Components/Facilities";
 import { useNavigate } from "react-router-dom";
+import AddGalleryForm from "../Components/addGalleryForm";
+
+
 const drawerWidth = 260; // Slightly wider for better layout
 
 const AdminPanel = () => {
@@ -41,10 +45,13 @@ const AdminPanel = () => {
   const [openDialog, setOpenDialog] = useState(false); // State for dialog
   const [roomList, setRoomList] = useState([]); // State to store rooms
   const [editRoomData, setEditRoomData] = useState(null); // State to store room data to be edited
-
+  const [openImageDialog, setOpenImageDialog] = useState(false);
+  
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
   const handleOpenDialog = () => setOpenDialog(true);
+  const handleOpenImageDialog = ()=> setOpenImageDialog(true);
+  const handleCloseImageDialog = ()=> setOpenImageDialog(false);
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setEditRoomData(null);
@@ -61,11 +68,12 @@ const AdminPanel = () => {
       prevList.map((room) => (room.id === roomId ? { ...room, ...updatedRoom } : room))
     );
   };
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   
   const handleLogout = ()=>{  
-    navigate('/')
-  }
+    navigate('/');
+  };
+
   const handleDeleteRoom = async (roomId) => {
     const roomRef = doc(db, "rooms", roomId);
     await deleteDoc(roomRef);
@@ -76,17 +84,23 @@ const AdminPanel = () => {
     setOpenDialog(true);
   };
 
+  const [anchorElGallery, setAnchorElGallery] = useState(null); // State for Gallery dropdown menu
+
+  // Handle opening and closing Gallery menu
+  const handleClickGallery = (event) => setAnchorElGallery(event.currentTarget);
+  const handleCloseGallery = () => setAnchorElGallery(null);
+
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
         return <Dashboard />;
       case "Logout":
           handleLogout(); // Call the logout function when this case is encountered
-          return null; // Optionally return null since you're redirec
+          return null; // Optionally return null since you're redirecting
       case "users":  
         return <Users />;
       case "Facilities":
-        return <Facilities/>
+        return <Facilities/>;
       case "Gallery":
         return <Gallery/>;
       case "settings":
@@ -139,12 +153,15 @@ const AdminPanel = () => {
             </ListItemIcon>
             <ListItemText primary="Dashboard" />
           </ListItem>
-          <ListItem button onClick={() => setActiveTab("Gallery")}>
+
+          {/* Gallery Button with Dropdown */}
+          <ListItem button onClick={handleClickGallery}>
             <ListItemIcon>
-              <DashboardIcon sx={{ color: "#FFF" }} />
+              <ImageIcon sx={{ color: "#FFF" }} />
             </ListItemIcon>
             <ListItemText primary="Gallery" />
           </ListItem>
+
           <ListItem button onClick={() => setActiveTab("Facilities")}>
             <ListItemIcon>
               <DashboardIcon sx={{ color: "#FFF" }} />
@@ -178,11 +195,18 @@ const AdminPanel = () => {
         </List>
       </Drawer>
 
+      {/* Dropdown for Gallery */}
+      <Menu anchorEl={anchorElGallery} open={Boolean(anchorElGallery)} onClose={handleCloseGallery}>
+        <MenuItem onClick={() => setActiveTab("Gallery")}>View Gallery</MenuItem>
+        <MenuItem onClick={handleOpenImageDialog}>Add Image</MenuItem>
+      </Menu>
+
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <MenuItem onClick={() => setActiveTab("Rooms")}>View Rooms</MenuItem>
         <MenuItem onClick={handleOpenDialog}>Add Room</MenuItem>
       </Menu>
-
+      
+      {/* Rooms Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="md">
         <DialogTitle>{editRoomData ? "Edit Room" : "Add New Room"}</DialogTitle>
         <DialogContent>
@@ -192,6 +216,13 @@ const AdminPanel = () => {
             onEditRoom={handleEditRoom}
           />
         </DialogContent>
+      </Dialog>
+
+      {/* Gallery Dialog */}
+      <Dialog open={openImageDialog} onClose={handleCloseImageDialog} fullWidth maxWidth="md">
+          <DialogContent>
+            <AddGalleryForm  onAddImage={(data) => console.log("Image added:", data)}/> {/* Form component for adding image */}
+          </DialogContent>
       </Dialog>
 
       <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}>
