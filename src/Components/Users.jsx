@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../Config/firebaseconfig"; // Adjust the path as necessary
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore"; // Import deleteDoc
 import {
   Table,
   TableBody,
@@ -9,7 +9,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Typography,
   Box,
   TableSortLabel,
   CircularProgress,
@@ -36,6 +35,36 @@ const Users = () => {
     fetchUsers();
   }, []);
 
+  // Function to block a user
+  const blockUser = async (userId) => {
+    const userDoc = doc(db, "users", userId); // Get document reference
+    await updateDoc(userDoc, { isBlocked: true }); // Update the isBlocked field
+    setUsers((prevUsers) =>
+      prevUsers.map((user) => (user.id === userId ? { ...user, isBlocked: true } : user))
+    ); // Update local state
+  };
+
+  // Function to unblock a user
+  const unblockUser = async (userId) => {
+    const userDoc = doc(db, "users", userId); // Get document reference
+    await updateDoc(userDoc, { isBlocked: false }); // Update the isBlocked field
+    setUsers((prevUsers) =>
+      prevUsers.map((user) => (user.id === userId ? { ...user, isBlocked: false } : user))
+    ); // Update local state
+  };
+
+  // Function to delete a user
+  const deleteUser = async (userId) => {
+    const userDoc = doc(db, 'users', userId); // Get document reference
+    try {
+      await deleteDoc(userDoc); // Delete the user document
+      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId)); // Update local state
+      console.log("User deleted successfully");
+    } catch (error) {
+      console.error("Error deleting user: ", error);
+    }
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
@@ -46,9 +75,6 @@ const Users = () => {
 
   return (
     <TableContainer component={Paper} elevation={3} style={{ margin: "20px", borderRadius: "12px" }}>
-      {/* <Typography variant="h4" align="center" gutterBottom>
-        Users
-      </Typography> */}
       <Table>
         <TableHead>
           <TableRow>
@@ -67,16 +93,33 @@ const Users = () => {
                 Email
               </TableSortLabel>
             </TableCell>
-            {/* Add more headers as needed */}
+            <TableCell>
+              <TableSortLabel active>
+                Phone Number
+              </TableSortLabel>
+            </TableCell>
+            <TableCell>
+              <TableSortLabel active>
+                Actions
+              </TableSortLabel>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {users.map((user, index) => (
             <TableRow key={user.id} style={{ backgroundColor: index % 2 === 0 ? "#f9f9f9" : "#ffffff" }}>
               <TableCell>{user.id}</TableCell>
-              <TableCell>{user.name}</TableCell> {/* Adjust based on your user data structure */}
+              <TableCell>{user.username}</TableCell> {/* Adjust based on your user data structure */}
               <TableCell>{user.email}</TableCell> {/* Adjust based on your user data structure */}
-              {/* Add more cells as needed */}
+              <TableCell>{user.cellphone}</TableCell>
+              <TableCell style={{ display: "flex", gap: 10 }}>
+                {user.isBlocked ? (
+                  <button onClick={() => unblockUser(user.id)}>Unblock</button>
+                ) : (
+                  <button onClick={() => blockUser(user.id)}>Block</button>
+                )}
+                <button onClick={() => deleteUser(user.id)}>Delete</button> {/* Add delete button */}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
