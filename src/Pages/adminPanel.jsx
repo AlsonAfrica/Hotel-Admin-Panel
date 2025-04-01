@@ -189,12 +189,12 @@ const AdminPanel = () => {
             </ListItemIcon>
             <ListItemText primary="Rooms" />
           </ListItem>
-          <ListItem button onClick={() => setActiveTab("settings")}>
+          {/* <ListItem button onClick={() => setActiveTab("settings")}>
             <ListItemIcon>
               <SettingsIcon sx={{ color: "#FFF" }} />
             </ListItemIcon>
             <ListItemText primary="Settings" />
-          </ListItem>
+          </ListItem> */}
           <ListItem button onClick={() => handleLogout()}>
             <ListItemIcon>
               <LogoutIcon sx={{ color: "#FFF" }} />
