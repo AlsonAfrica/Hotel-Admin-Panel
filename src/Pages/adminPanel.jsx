@@ -27,7 +27,7 @@ import ImageIcon from "@mui/icons-material/Image";  // Gallery Icon
 import Dashboard from "../Components/Dashboard";
 import Users from "../Components/Users";
 import Rooms from "../Components/Rooms";
-import AddRoomForm from "../Components/AddRoomForm";
+import Addroomform from "../Components/AddRoomForm";
 import { db } from "../Config/firebaseconfig";
 import { collection, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import Gallery from "../Components/Gallary";
