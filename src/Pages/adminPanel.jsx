@@ -26,7 +26,6 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ImageIcon from "@mui/icons-material/Image";  // Gallery Icon
 import Dashboard from "../Components/Dashboard";
 import Users from "../Components/Users";
-import Settings from "../Components/Settings";
 import Rooms from "../Components/Rooms";
 import AddRoomForm from "../Components/AddRoomForm";
 import { db } from "../Config/firebaseconfig";
