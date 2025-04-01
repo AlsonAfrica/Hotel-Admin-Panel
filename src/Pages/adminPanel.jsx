@@ -36,6 +36,8 @@ import Facilities from "../Components/Facilities";
 import { useNavigate } from "react-router-dom";
 import AddGalleryForm from "../Components/addGalleryForm";
 import AddFacilitiesForm from "../Components/addFacilityForm";
+import BookIcon from '@mui/icons-material/Book';
+import { Book } from "@mui/icons-material";
 
 
 const drawerWidth = 260; // Slightly wider for better layout
@@ -112,8 +114,8 @@ const AdminPanel = () => {
         return <Facilities/>;
       case "Gallery":
         return <Gallery/>;
-      case "settings":
-        return <Settings />;
+      case "Bookings":
+        return <Book/>;
       case "Rooms":
         return (
           <Box>
@@ -189,12 +191,12 @@ const AdminPanel = () => {
             </ListItemIcon>
             <ListItemText primary="Rooms" />
           </ListItem>
-          {/* <ListItem button onClick={() => setActiveTab("settings")}>
+          <ListItem button onClick={() => setActiveTab("Bookings")}>
             <ListItemIcon>
-              <SettingsIcon sx={{ color: "#FFF" }} />
+              <BookIcon sx={{ color: "#FFF" }} />
             </ListItemIcon>
-            <ListItemText primary="Settings" />
-          </ListItem> */}
+            <ListItemText primary="Bookings" />
+          </ListItem>
           <ListItem button onClick={() => handleLogout()}>
             <ListItemIcon>
               <LogoutIcon sx={{ color: "#FFF" }} />
