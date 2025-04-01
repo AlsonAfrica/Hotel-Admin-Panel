@@ -226,7 +226,7 @@ const AdminPanel = () => {
       <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="md">
         <DialogTitle>{editRoomData ? "Edit Room" : "Add New Room"}</DialogTitle>
         <DialogContent>
-          <AddRoomForm
+          <Addroomform
             onAddRoom={handleAddRoom}
             editRoomData={editRoomData}
             onEditRoom={handleEditRoom}
