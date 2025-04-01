@@ -27,7 +27,7 @@ import ImageIcon from "@mui/icons-material/Image";  // Gallery Icon
 import Dashboard from "../Components/Dashboard";
 import Users from "../Components/Users";
 import Rooms from "../Components/Rooms";
-import Addroomform from "../Components/AddRoomForm";
+import AddRoomForm from "../Components/addRoomForm";
 import { db } from "../Config/firebaseconfig";
 import { collection, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import Gallery from "../Components/Gallary";
@@ -226,7 +226,7 @@ const AdminPanel = () => {
       <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="md">
         <DialogTitle>{editRoomData ? "Edit Room" : "Add New Room"}</DialogTitle>
         <DialogContent>
-          <Addroomform
+          <AddRoomForm
             onAddRoom={handleAddRoom}
             editRoomData={editRoomData}
             onEditRoom={handleEditRoom}

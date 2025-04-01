@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, Card, CardContent, Typography, Button, CardMedia, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { collection, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../Config/firebaseconfig";
-import AddRoomForm from "./AddRoomForm";
+import AddRoomForm from "./addRoomForm";
 
 const Rooms = () => {
   const [rooms, setRooms] = useState([]);
