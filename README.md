@@ -71,6 +71,12 @@ src/
 - App.js - Main application component.
 - index.js - Entry point of the React application
 
+## Admin Panel Link
+- https://hotel-admin-panel-beryl.vercel.app/
+
+## Application Link
+- https://hotel-react-7rdu.onrender.com/
+
 # License
 This project is licensed under the MLab License 
 
